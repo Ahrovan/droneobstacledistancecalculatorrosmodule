@@ -76,7 +76,7 @@ void DroneObstacleDistanceCalculatorROSModule::readParameters()
     ros::param::get("~drone_pose_topic_name", drone_pose_topic_name);
     if ( drone_pose_topic_name.length() == 0)
     {
-        drone_pose_topic_name="EstimatedPose_droneGMR_wrt_GFF";
+        drone_pose_topic_name="ArucoSlam_EstimatedPose";
     }
     std::cout<<"drone_pose_topic_name="<<drone_pose_topic_name<<std::endl;
     //

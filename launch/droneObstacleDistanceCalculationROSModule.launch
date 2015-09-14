@@ -1,4 +1,4 @@
-<!-- Launches: droneObstacleDistanceCalculationROSModule -->
+<!-- Launches: droneObstacleDistanceCalculatorROSModule -->
 <launch>
 	
 	<arg name="drone_id_namespace"  default="drone0" />
@@ -10,7 +10,7 @@
 	<arg name="distance_to_obstacles_topic_name" 	default="distanceToObstacles" />
 
 	<group ns="$(arg drone_id_namespace)">
-		<node name="droneObstacleDistanceCalculation" pkg="droneObstacleDistanceCalculationROSModule" type="droneObstacleDistanceCalculationROSModuleNode" output="screen">
+		<node name="droneObstacleDistanceCalculator" pkg="droneObstacleDistanceCalculatorROSModule" type="droneObstacleDistanceCalculatorROSModuleNode" output="screen">
 			<param name="droneId" value="$(arg drone_id_int)" type="int"/>
 			<param name="stackPath" value="$(arg my_stack_directory)" type="string"/>
 
