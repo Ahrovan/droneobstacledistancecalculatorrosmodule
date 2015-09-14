@@ -1,0 +1,23 @@
+<!-- Launches: droneObstacleDistanceCalculationROSModule -->
+<launch>
+	
+	<arg name="drone_id_namespace"  default="drone0" />
+	<arg name="drone_id_int" 	default="0" />
+	<arg name="my_stack_directory" 	default="$(env DRONE_STACK)" />
+
+	<arg name="obstacles_topic_name" 	default="obstacles" />
+	<arg name="drone_pose_topic_name" 	default="ArucoSlam_EstimatedPose" />
+	<arg name="distance_to_obstacles_topic_name" 	default="distanceToObstacles" />
+
+	<group ns="$(arg drone_id_namespace)">
+		<node name="droneObstacleDistanceCalculation" pkg="droneObstacleDistanceCalculationROSModule" type="droneObstacleDistanceCalculationROSModuleNode" output="screen">
+			<param name="droneId" value="$(arg drone_id_int)" type="int"/>
+			<param name="stackPath" value="$(arg my_stack_directory)" type="string"/>
+
+			<param name="obstacles_topic_name" value="$(arg obstacles_topic_name)" type="string"/>
+			<param name="drone_pose_topic_name" value="$(arg drone_pose_topic_name)" type="string"/>
+			<param name="distance_to_obstacles_topic_name" value="$(arg distance_to_obstacles_topic_name)" type="string"/>
+
+		</node>
+	</group>
+</launch>
