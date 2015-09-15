@@ -71,6 +71,21 @@ const double FREQ_OBSTACLEPROCESSOR = 30.0;
 
 
 
+class DistancePointEllipseProblem
+{
+public:
+    // Point of the drone
+    double yp;
+    double xp;
+    // Size of the obstacles
+    double a;
+    double b;
+
+
+
+};
+
+
 
 /////////////////////////////////////////
 // Class DroneObstacleProcessorROSModule

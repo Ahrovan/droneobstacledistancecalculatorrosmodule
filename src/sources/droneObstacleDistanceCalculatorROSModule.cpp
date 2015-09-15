@@ -21,6 +21,24 @@ using namespace std;
 
 void DroneObstacleDistanceCalculatorROSModule::distanciaPuntoElipse(double *p, double *hx, int dimP, int dimHx, void *adata)
 {
+    // External parameters
+    DistancePointEllipseProblem *TheDistancePointEllipseProblem=(DistancePointEllipseProblem *)adata;
+    // Point of the drone
+    double xp=TheDistancePointEllipseProblem->xp;
+    double yp=TheDistancePointEllipseProblem->yp;
+    // Size of the obstacles
+    double a=TheDistancePointEllipseProblem->a;
+    double b=TheDistancePointEllipseProblem->b;
+
+
+    // Solution or guess
+    double x=p[0];
+    double y=p[1];
+
+
+    // Equations
+    hx[0]=x*(y-yp)-pow(a,2)/pow(b,2)*y*(x-xp);
+    hx[1]=pow(x,2)/pow(a,2)+pow(y,2)/pow(b,2)-1.0;
 
 
     return;
@@ -190,8 +208,70 @@ bool DroneObstacleDistanceCalculatorROSModule::run()
         // id
         theDistanceToObstacle.id_obstacle=obstaclesMsg.poles[i].id;
 
+        // Obstacle in world
+        double xe=obstaclesMsg.poles[i].centerX;
+        double ye=obstaclesMsg.poles[i].centerY;
+        double alphae=obstaclesMsg.poles[i].yawAngle;
+        double a=obstaclesMsg.poles[i].radiusX;
+        double b=obstaclesMsg.poles[i].radiusY;
+        // Drone in world
+        double xd=dronePoseMsg.x;
+        double yd=dronePoseMsg.y;
+        // Drone in ellipse
+        double x, y;
+        x=xd*cos(alphae)+yd*sin(alphae)-(xe*cos(alphae)+ye*sin(alphae));
+        y=-xd*sin(alphae)+yd*cos(alphae)+(xe*sin(alphae)-ye*cos(alphae));
+
+
+        //
+        DistancePointEllipseProblem TheDistancePointEllipseProblem;
+        TheDistancePointEllipseProblem.a=a;
+        TheDistancePointEllipseProblem.b=b;
+        TheDistancePointEllipseProblem.xp=x;
+        TheDistancePointEllipseProblem.yp=y;
+
+
+        //Resolvemos
+        double solution[2];
+        solution[0]=x;
+        solution[1]=y;
+
+        //Options
+        double opts[5];
+        //tau
+        opts[0]=1e-5;
+        //epsilon-> 1-3
+        opts[1]=1e-15;
+        opts[2]=1e-15;
+        opts[3]=1e-15;
+        //delta
+        opts[4]=1e-1;
+
+        //Info
+        double info[LM_INFO_SZ];
+
+        //Calculation
+       int iters = dlevmar_dif(&distanciaPuntoElipse, solution, 0, 2, 2, 10000, 0, info, 0, 0, &TheDistancePointEllipseProblem);
+       if (iters == -1)
+       {
+           std::cout<<"unable to calculate solution"<<std::endl;
+           return false;
+       }
+
+
+
         // Distance
-        theDistanceToObstacle.distance_to_obstacle=0.0;
+        double distance=sqrt(pow(x-solution[0],2)+pow(y-solution[1],2));
+
+        double sign=pow(solution[0]/a,2)+pow(solution[1]/b,2)-1;
+        double tol=1e-3;
+        if(sign>=-tol)
+            sign=1;
+        else
+            sign=-1;
+
+
+        theDistanceToObstacle.distance_to_obstacle=sign*distance;
 
 
         // Push
@@ -199,7 +279,7 @@ bool DroneObstacleDistanceCalculatorROSModule::run()
     }
 
 
-    // Distancia a walls
+    // TODO JL: Distancia a walls
     for(unsigned int i=0; i<obstaclesMsg.walls.size(); i++)
     {
         droneMsgsROS::distanceToObstacle theDistanceToObstacle;
@@ -208,7 +288,7 @@ bool DroneObstacleDistanceCalculatorROSModule::run()
         theDistanceToObstacle.id_obstacle=obstaclesMsg.walls[i].id;
 
         // Distance
-        theDistanceToObstacle.distance_to_obstacle=0.0;
+        theDistanceToObstacle.distance_to_obstacle=100000.0;
 
 
         // Push
