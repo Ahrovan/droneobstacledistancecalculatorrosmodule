@@ -99,7 +99,8 @@ class DroneObstacleDistanceCalculatorROSModule : public DroneModule
 protected:
 
     static void distanciaPuntoElipse(double *p, double *hx, int dimP, int dimHx, void *adata);
-    static void distanciaPuntoRectangulo(double *p, double *hx, int dimP, int dimHx, void *adata);
+    double distanciaPuntoRectangulo(droneMsgsROS::dronePose drone_pose, droneMsgsROS::obstacleTwoDimWall obstacle);
+    double distanciaPuntoSegmento(std::vector<double> &punto, std::vector<std::vector<double> > &segmento);
 
 
 
