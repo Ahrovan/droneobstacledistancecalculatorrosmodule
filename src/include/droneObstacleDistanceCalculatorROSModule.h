@@ -97,8 +97,13 @@ class DroneObstacleDistanceCalculatorROSModule : public DroneModule
 {	
     // Algorithm
 protected:
+    // Ellipse
+    double distanciaPuntoEllipse(droneMsgsROS::dronePose drone_pose, droneMsgsROS::obstacleTwoDimPole obstacle);
+    static void distanciaPuntoElipseEquations(double *p, double *hx, int dimP, int dimHx, void *adata);
 
-    static void distanciaPuntoElipse(double *p, double *hx, int dimP, int dimHx, void *adata);
+
+protected:
+    // Rectangle
     double distanciaPuntoRectangulo(droneMsgsROS::dronePose drone_pose, droneMsgsROS::obstacleTwoDimWall obstacle);
     double distanciaPuntoSegmento(std::vector<double> &punto, std::vector<std::vector<double> > &segmento);
 
