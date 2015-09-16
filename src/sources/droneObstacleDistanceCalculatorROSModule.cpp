@@ -123,8 +123,23 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoRectangulo(droneM
 //    double cx_p = obstacle.centerX*cos(obstacle.yawAngle) + obstacle.centerY*sin(obstacle.yawAngle);
 //    double cy_p = -obstacle.centerX*sin(obstacle.yawAngle) + obstacle.centerY*cos(obstacle.yawAngle);
 
-//    double drone_posex_p = drone_pose.x*cos(obstacle.yawAngle) + drone_pose.y*sin(obstacle.yawAngle);
-//    double drone_posey_p = -drone_pose.x*sin(obstacle.yawAngle) + drone_pose.y*cos(obstacle.yawAngle);
+    double alpha = obstacle.yawAngle;
+    double obs_x = obstacle.centerX;
+    double obs_y = obstacle.centerY;
+    double dp_x = drone_pose.x;
+    double dp_y = drone_pose.y;
+    double Sx_2 = obstacle.sizeX/2.0;
+    double Sy_2 = obstacle.sizeY/2.0;
+
+    double drone_posex_p = dp_x*cos(alpha) + dp_y*sin(alpha)-obs_x*cos(alpha)-obs_y*sin(alpha);
+    double drone_posey_p = -dp_x*sin(alpha) + dp_y*cos(alpha)+obs_x*sin(alpha)-obs_y*cos(alpha);
+
+    bool pose_inside_obstacle = false;
+    if(drone_posex_p > -Sx_2 && drone_posex_p < Sx_2)
+    {
+        if(drone_posey_p > -Sy_2 && drone_posey_p < Sy_2)
+            pose_inside_obstacle = true;
+    }
 
 
     std::vector<double> p1;
@@ -133,21 +148,17 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoRectangulo(droneM
     std::vector<double> p4;
 
 
+    p1.push_back(-Sx_2*cos(alpha) - Sy_2*sin(alpha) + obs_x);
+    p1.push_back(-Sx_2*sin(alpha) + Sy_2*cos(alpha) + obs_y);
 
-    double Sx_2 = obstacle.sizeX/2.0;
-    double Sy_2 = obstacle.sizeY/2.0;
+    p2.push_back(Sx_2*cos(alpha) - Sy_2*sin(alpha) + obs_x);
+    p2.push_back(Sx_2*sin(alpha) + Sy_2*cos(alpha) + obs_y);
 
-    p1.push_back(-Sx_2*cos(obstacle.yawAngle)-Sy_2*sin(obstacle.yawAngle)+drone_pose.x);
-    p1.push_back(-Sx_2*sin(obstacle.yawAngle)+Sy_2*cos(obstacle.yawAngle)+drone_pose.y);
+    p3.push_back(Sx_2*cos(alpha) + Sy_2*sin(alpha) + obs_x);
+    p3.push_back(Sx_2*sin(alpha) - Sy_2*cos(alpha) + obs_y);
 
-    p2.push_back(Sx_2*cos(obstacle.yawAngle)-Sy_2*sin(obstacle.yawAngle)+drone_pose.x);
-    p2.push_back(Sx_2*sin(obstacle.yawAngle)+Sy_2*cos(obstacle.yawAngle)+drone_pose.y);
-
-    p3.push_back(Sx_2*cos(obstacle.yawAngle)+Sy_2*sin(obstacle.yawAngle)+drone_pose.x);
-    p3.push_back(Sx_2*sin(obstacle.yawAngle)-Sy_2*cos(obstacle.yawAngle)+drone_pose.y);
-
-    p4.push_back(-Sx_2*cos(obstacle.yawAngle)+Sy_2*sin(obstacle.yawAngle)+drone_pose.x);
-    p4.push_back(-Sx_2*sin(obstacle.yawAngle)-Sy_2*cos(obstacle.yawAngle)+drone_pose.y);
+    p4.push_back(-Sx_2*cos(alpha) + Sy_2*sin(alpha) + obs_x);
+    p4.push_back(-Sx_2*sin(alpha) - Sy_2*cos(alpha) + obs_y);
 
     std::vector<double> punto;
     std::vector<std::vector<double> > segmento1, segmento2, segmento3, segmento4;
@@ -173,6 +184,7 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoRectangulo(droneM
     double d3 = distanciaPuntoSegmento(punto,segmento3);
     double d4 = distanciaPuntoSegmento(punto,segmento4);
 
+
     std::vector<double> distances;
     distances.push_back(d1);
     distances.push_back(d2);
@@ -186,7 +198,8 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoRectangulo(droneM
             min_distance = distances[i];
     }
 
-
+    if(pose_inside_obstacle)
+        min_distance = -min_distance;
     return min_distance;
 }
 
@@ -195,6 +208,7 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoSegmento(std::vec
     std::vector<double> limite1, limite2;
     limite1 = segmento[0];
     limite2 = segmento[1];
+
 
     double u[2];
     u[0] = (punto[0]-limite1[0]);
@@ -231,7 +245,7 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoSegmento(std::vec
         dir[0] = u[0]- v[0]*valor;
         dir[1] = u[1]- v[1]*valor;
     }
-    distancia = sqrt(pow(dir[0],2) + pow(dir[1],2));;
+    distancia = sqrt(pow(dir[0],2) + pow(dir[1],2));
     return distancia;
 }
 
