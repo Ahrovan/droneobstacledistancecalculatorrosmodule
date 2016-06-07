@@ -6,7 +6,7 @@
 	</description>
         <author email="jl.sanchez@upm.es">Jose Luis Sanchez-Lopez</author>
 	<maintainer email="jl.sanchez@upm.es">Jose Luis Sanchez-Lopez</maintainer>
-  	<license>BSD</license>
+  	<license>GPLv3</license>
 	<url>http://ros.org/wiki/droneObstacleDistanceCalculatorROSModule</url>
 
   	<buildtool_depend>catkin</buildtool_depend>
