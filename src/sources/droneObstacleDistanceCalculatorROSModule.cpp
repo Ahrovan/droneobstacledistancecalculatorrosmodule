@@ -191,6 +191,30 @@ double DroneObstacleDistanceCalculatorROSModule::distanciaPuntoRectangulo(droneM
     distances.push_back(d3);
     distances.push_back(d4);
 
+    droneMsgsROS::segmento seg;
+    seg.id=obstacle.id;
+    droneMsgsROS::seg so;
+    so.p=p1;
+    seg.seg1.push_back(so);
+    droneMsgsROS::seg so2;
+    so2.p=p2;
+    seg.seg1.push_back(so2);
+    so2.p=p2;
+    seg.seg2.push_back(so2);
+    droneMsgsROS::seg so3;
+    so3.p=p3;
+    seg.seg2.push_back(so3);
+    so3.p=p3;
+    seg.seg3.push_back(so3);
+    droneMsgsROS::seg so4;
+    so4.p=p4;
+    seg.seg3.push_back(so4);
+    so4.p=p4;
+    seg.seg4.push_back(so4);
+    so.p=p1;
+    seg.seg4.push_back(so);
+    segmentoPub.publish(seg);
+
     double min_distance = distances[0];
     for(int i=1;i<distances.size();i++)
     {
@@ -302,6 +326,13 @@ void DroneObstacleDistanceCalculatorROSModule::readParameters()
     }
     std::cout<<"distance_to_obstacles_topic_name="<<distance_to_obstacles_topic_name<<std::endl;
 
+    ros::param::get("~segments_topic_name", segments_topic_name);
+    if (segments_topic_name.length() == 0)
+    {
+        segments_topic_name="segments";
+    }
+    std::cout<<"distance_to_obstacles_topic_name="<<distance_to_obstacles_topic_name<<std::endl;
+
     return;
 }
 
@@ -319,13 +350,14 @@ void DroneObstacleDistanceCalculatorROSModule::open(ros::NodeHandle & nIn)
     // Subs
     obstaclesSub = n.subscribe(obstacles_topic_name, 1, &DroneObstacleDistanceCalculatorROSModule::obstaclesCallback, this);
     dronePoseSub = n.subscribe(drone_pose_topic_name, 1, &DroneObstacleDistanceCalculatorROSModule::dronePoseCallback, this);
+    segmentoPub= n.advertise<droneMsgsROS::segmento>(segments_topic_name,1,true);
     // Pub
     distanceToObstaclesPub = n.advertise<droneMsgsROS::distancesToObstacles>(distance_to_obstacles_topic_name, 1, true);
 
 
     //Flag of module opened
     droneModuleOpened=true;
-	
+
 	//End
 	return;
 }

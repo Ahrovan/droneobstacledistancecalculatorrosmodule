@@ -58,6 +58,7 @@
 // Distances
 #include "droneMsgsROS/distancesToObstacles.h"
 #include "droneMsgsROS/distanceToObstacle.h"
+#include"droneMsgsROS/segmento.h"
 
 
 // LEVMAR
@@ -94,7 +95,7 @@ public:
 //
 /////////////////////////////////////////
 class DroneObstacleDistanceCalculatorROSModule : public DroneModule
-{	
+{
     // Algorithm
 protected:
     // Ellipse
@@ -151,6 +152,8 @@ protected:
     ros::Subscriber dronePoseSub;
     void dronePoseCallback(const droneMsgsROS::dronePose::ConstPtr& msg);
     droneMsgsROS::dronePose dronePoseMsg;
+    std::string segments_topic_name;
+    ros::Publisher segmentoPub;
 
 
 protected:
